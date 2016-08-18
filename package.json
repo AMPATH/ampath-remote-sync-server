@@ -1,0 +1,32 @@
+{
+  "name": "mysqldump",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "array-unique": "^0.3.2",
+    "async": "^2.0.1",
+    "extfs": "0.0.7",
+    "hapi": "^14.2.0",
+    "hapi-auth-jwt2": "^7.0.1",
+    "inert": "^4.0.1",
+    "lodash": "^4.15.0",
+    "lout": "^9.1.0",
+    "moment": "^2.14.1",
+    "mq-node": "^1.0.11",
+    "mysql2": "^1.0.0-rc.11",
+    "nanotimer": "^0.3.14",
+    "node-exec-promise": "^0.1.1",
+    "node-uuid": "^1.4.7",
+    "shelljs": "^0.7.3",
+    "sprintf": "^0.1.5",
+    "string-to-stream": "^1.1.0",
+    "tar.gz": "^1.0.5",
+    "vision": "^4.1.0"
+  }
+}

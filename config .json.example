@@ -1,0 +1,30 @@
+{
+  "dumpBase": "/path/to/dumps/",
+  "initialCutOff": "2016-08-18 11:21:27",
+  "db": {
+    "connection": {
+      "host": "127.0.0.1",
+      "port": "3307",
+      "username": "",
+      "password": "",
+      "database": "amrs"
+    }
+  },
+  "mysql": {
+    "user": "",
+    "password": "",
+    "database": "remote_sync"
+  },
+  "tables": [{
+    "name": "encounter",
+    "where": "date_created >='%lastDump%' and date_created <='%cutOff%'"
+  }, {
+    "name": "obs",
+    "where": "date_created >='%lastDump%' and date_created <='%cutOff%'"
+  }],
+  "sites": [{
+    "tag": "chulaimbo"
+  }, {
+    "tag": "victoria"
+  }]
+}
