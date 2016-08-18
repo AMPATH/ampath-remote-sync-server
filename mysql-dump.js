@@ -10,7 +10,7 @@ var shell = require('shelljs');
 var db = require('./db');
 var recursive = require('recursive-readdir');
 var uuid = require('node-uuid');
-var fsex = require('extfs');
+var extfs = require('extfs');
 
 function dumpTable(server, table, options) {
   var replacements = {
@@ -36,6 +36,12 @@ function dumpTable(server, table, options) {
       table: table.name,
       dump: data
     };
+  }).catch(function(error) {
+    console.log('Error ' + table.name, error);
+    return {
+      table: table.name,
+      error: error
+    };
   });
 }
 
@@ -44,7 +50,7 @@ function saveDump(dump, fullPath) {
     if (dump.dump.length === 0) {
       resolve(fullPath);
     } else {
-      fs.writeFile(fullPath + '/' + dump.table + '.sql', dump.dump, function(err) {
+      fs.writeFile(fullPath + '/temp/' + dump.table + '.sql', dump.dump, function(err) {
         if (err) {
           reject(err);
         }
@@ -67,18 +73,18 @@ function preparePromises(lastDump, cutOff) {
 
 function createFolders(dumps, timeStamp) {
   var dumpPromises = [];
-  for (var site of config.sites) {
-    var path = config.dumpBase + site.tag;
-    var compressed = config.dumpBase + 'compressed_' + site.tag;
-    if (!fs.existsSync(path)) {
-      fs.mkdirSync(path);
-    }
-    if (!fs.existsSync(compressed)) {
-      fs.mkdirSync(compressed);
-    }
-    for (var dump of dumps) {
-      dumpPromises.push(saveDump(dump, path));
-    }
+  var path = config.dumpBase;
+  var temp = config.dumpBase + '/temp';
+  if (!fs.existsSync(path)) {
+
+    fs.mkdirSync(path);
+  }
+  if (!fs.existsSync(temp)) {
+
+    fs.mkdirSync(temp);
+  }
+  for (var dump of dumps) {
+    dumpPromises.push(saveDump(dump, path));
   }
   return Promise.all(dumpPromises);
 }
@@ -93,32 +99,37 @@ function prepareTarPromises(paths, timeStamp) {
 
 function compressPath(path, timeStamp) {
   var name = path.match(/([^\/]*)\/*$/)[1];
-  var compressed = config.dumpBase + 'compressed_' + name + '/' +
+  var compressed = config.dumpBase +
     timeStamp + '.tar.gz';
   var meta = {
     timeStamp: timeStamp,
     dumpUuid: uuid.v4()
   };
   return new Promise(function(resolve, reject) {
-    fsex.isEmpty(path, function(empty) {
+    var temp = path + 'temp/';
+    extfs.isEmpty(temp, function(empty) {
       if (empty) {
-        fsex.removeSync(path);
+        extfs.removeSync(temp);
         resolve({
-          site: name,
           path: 'no data',
           meta: meta
         });
       } else {
-        fs.writeFileSync(path + '/meta.json', JSON.stringify(meta, null, 2), 'utf-8');
-        targz().compress(path, compressed).then(function() {
-            fsex.removeSync(path);
+        fs.writeFileSync(temp + 'meta.json', JSON.stringify(meta, null, 2), 'utf-8');
+        targz({
+            level: 9, // Maximum compression
+            memLevel: 9
+          }, {
+            fromBase: true // do not include top level directory
+          }).compress(temp, compressed).then(function() {
+            extfs.removeSync(temp);
             resolve({
-              site: name,
               path: compressed,
               meta: meta
             });
           })
           .catch(function(err) {
+            extfs.removeSync(temp);
             reject(err);
           });
       }
@@ -133,6 +144,7 @@ function insert(table, columns, values) {
     var connection = db.getConnection();
     connection.query(sql, values, function(err, rows) {
       if (err) {
+        console.log('Error inserting dumps');
         reject(err);
         connection.end();
       }
@@ -163,10 +175,13 @@ function getLastDump() {
 
 function dumpDatabase() {
   var timeStamp = moment().format('YYYY-MM-DD HH:mm:ss');
+  var previous = '';
   getLastDump().then(function(lastDump) {
-    var initialCutOff = lastDump || config.initialCutOff;
-    return Promise.all(preparePromises(initialCutOff, timeStamp));
+    console.log(previous);
+    previous = lastDump || config.initialCutOff;
+    return Promise.all(preparePromises(previous, timeStamp));
   }).then(function(response) {
+    console.log('Getting here======');
     return createFolders(response, timeStamp);
   }).then(function(res) {
     console.log('Locations to Tars', unique(res));
@@ -174,18 +189,19 @@ function dumpDatabase() {
   }).then(function(compressedTars) {
     console.log(compressedTars);
     var rows = [];
-    for (var site of compressedTars) {
+    console.log('Previous===>', previous);
+    for (var tar of compressedTars) {
       var row = [];
-      var meta = site.meta || {};
-      row.push(site.site);
-      row.push(site.path);
-      row.push(site.meta.timeStamp);
-      row.push(site.meta.dumpUuid);
+      var meta = tar.meta || {};
+      row.push(tar.path);
+      row.push(tar.meta.timeStamp);
+      row.push(previous);
+      row.push(tar.meta.dumpUuid);
       rows.push(row);
     }
 
     //Log timeStamp as lastDump
-    return insert('generated_zips', 'site,path,dump_time,dump_uuid', [rows]);
+    return insert('generated_zips', 'path,dump_time,previous_dump_time,dump_uuid', [rows]);
   }).then(function() {
     //Log timeStamp as lastDump
     var r = [
@@ -195,7 +211,7 @@ function dumpDatabase() {
   }).catch(
     function(err) {
       //Log Error and delete any files already created
-      console.log('Error', err);
+      console.log('Error Saving Dump', err);
     }
   );
 

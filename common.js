@@ -12,7 +12,8 @@ function executeCmdAsync(cmd) {
     shell.exec(cmd, {
       silent: true
     }, function(code, stdout, stderr) {
-      if (code !== 0) {
+      if (code !== undefined && code !== 0) {
+        console.log('Error code====>', code);
         reject(stderr);
       }
       resolve(stdout);
