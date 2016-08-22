@@ -12,6 +12,7 @@
     "array-unique": "^0.3.2",
     "async": "^2.0.1",
     "extfs": "0.0.7",
+    "find-remove": "^0.2.12",
     "hapi": "^14.2.0",
     "hapi-auth-jwt2": "^7.0.1",
     "inert": "^4.0.1",

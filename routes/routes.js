@@ -1,38 +1,23 @@
 'use strict';
-
+var dao = require('../dao');
 var Joi = require('joi');
-var db = require('../db');
-var internals = {};
-
-internals.getDumps = function(request, reply) {
-  var connection = db.getConnection();
-  connection.execute('SELECT * FROM generated_zips WHERE site = ? ORDER BY id DESC', [request.query.site_tag], function(err, rows) {
-    if (err) {
-      console.log(err);
-      reply('Error querying db');
-    } else {
-      reply(rows);
-    }
-  });
-};
-
+var schema = Joi.alternatives().try(
+  Joi.object().keys({
+    lastUuid: Joi.string().allow(''),
+    fromDate: Joi.string()
+  }),
+  Joi.object().keys({
+    lastUuid: Joi.string(),
+    fromDate: Joi.string().allow('')
+  })
+);
 module.exports = [{
   method: 'GET',
   path: '/db-updates',
   config: {
     validate: {
-      query: {
-        site_tag: Joi.string()
-      }
+      query: schema
     },
-    handler: internals.getDumps
+    handler: dao.getDumps
   }
-}];
-
-internals.products = [{
-  id: 1,
-  name: 'Guitar'
-}, {
-  id: 2,
-  name: 'Banjo'
 }];
