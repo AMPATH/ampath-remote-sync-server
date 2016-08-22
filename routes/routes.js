@@ -17,7 +17,7 @@ module.exports = [{
   method: 'GET',
   path: '/db-updates',
   config: {
-    auth: 'jwt',
+    auth: false,
     validate: {
       query: schema
     },

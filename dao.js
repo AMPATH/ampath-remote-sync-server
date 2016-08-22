@@ -1,5 +1,6 @@
-var db = require('./db');
+const db = require('./db');
 const config = require('./config');
+const path = require('path');
 var internals = {};
 internals.getClientByName = function(name) {
   return config.clients.find(function(client) {
@@ -26,7 +27,7 @@ internals.getDumps = function(request, reply) {
       var processedRows = [];
       for (var row of rows) {
         processedRows.push({
-          filename: row.path,
+          filename: path.basename(row.path),
           uuid: row.dump_uuid,
           dateCreated: row.dump_time,
           sequenceNumber: row.id,
@@ -36,7 +37,9 @@ internals.getDumps = function(request, reply) {
           }
         });
       }
-      reply(processedRows);
+      reply({
+        result: processedRows
+      });
     }
   });
 };
