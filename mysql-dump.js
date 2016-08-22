@@ -175,9 +175,11 @@ function getLastDump() {
 
 function dumpDatabase() {
   var timeStamp = moment().format('YYYY-MM-DD HH:mm:ss');
+  var previous = '';
   getLastDump().then(function(lastDump) {
-    var initialCutOff = lastDump || config.initialCutOff;
-    return Promise.all(preparePromises(initialCutOff, timeStamp));
+    console.log(previous);
+    previous = lastDump || config.initialCutOff;
+    return Promise.all(preparePromises(previous, timeStamp));
   }).then(function(response) {
     console.log('Getting here======');
     return createFolders(response, timeStamp);
@@ -187,17 +189,19 @@ function dumpDatabase() {
   }).then(function(compressedTars) {
     console.log(compressedTars);
     var rows = [];
+    console.log('Previous===>', previous);
     for (var tar of compressedTars) {
       var row = [];
       var meta = tar.meta || {};
       row.push(tar.path);
       row.push(tar.meta.timeStamp);
+      row.push(previous);
       row.push(tar.meta.dumpUuid);
       rows.push(row);
     }
 
     //Log timeStamp as lastDump
-    return insert('generated_zips', 'path,dump_time,dump_uuid', [rows]);
+    return insert('generated_zips', 'path,dump_time,previous_dump_time,dump_uuid', [rows]);
   }).then(function() {
     //Log timeStamp as lastDump
     var r = [
