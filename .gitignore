@@ -14,7 +14,7 @@ lib-cov
 *.tar.gz
 # Coverage directory used by tools like istanbul
 coverage
-
+test.js
 # nyc test coverage
 .nyc_output
 
