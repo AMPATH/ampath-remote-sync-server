@@ -2,6 +2,10 @@
   "dumpBase": "/path/to/dumps/",
   "initialCutOff": "2016-08-18 11:21:27",
   "jwtSecret": "supersecret",
+  "server": {
+    "host": "0.0.0.0",
+    "port": "8080"
+  },
   "cron": {
     "dumpSchedule": "00 09-18 * * 1-5",
     "timezone": "Africa/Nairobi"

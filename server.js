@@ -12,8 +12,6 @@ const CronJob = require('cron').CronJob;
 const mysqlDump = require('./mysql-dump');
 const server = new Hapi.Server({});
 
-const port = 8080;
-const host = '0.0.0.0';
 var validate = function(decoded, request, callback) {
   var client = dao.getClientByName(decoded.name);
   // do your checks to see if the person is valid
@@ -25,8 +23,8 @@ var validate = function(decoded, request, callback) {
 };
 
 server.connection({
-  port: port,
-  host: host
+  port: config.server.port,
+  host: config.server.host
 });
 
 const loutRegister = {
