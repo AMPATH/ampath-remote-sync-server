@@ -186,6 +186,9 @@ function dumpDatabase() {
   }).then(function(compressedTars) {
     var rows = [];
     for (var tar of compressedTars) {
+      if(tar.path === 'no data'){
+        continue;
+      }
       var row = [];
       var meta = tar.meta || {};
       row.push(tar.path);
