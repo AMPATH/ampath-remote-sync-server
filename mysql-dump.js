@@ -166,7 +166,6 @@ function getLastDump() {
       if (rows.length > 0) {
         lastDump = moment(rows[0].last_dump_time).format('YYYY-MM-DD HH:mm:ss');
       }
-      console.log(lastDump);
       connection.end();
       resolve(lastDump);
     });
@@ -181,15 +180,11 @@ function dumpDatabase() {
     previous = lastDump || config.initialCutOff;
     return Promise.all(preparePromises(previous, timeStamp));
   }).then(function(response) {
-    console.log('Getting here======');
     return createFolders(response, timeStamp);
   }).then(function(res) {
-    console.log('Locations to Tars', unique(res));
     return Promise.all(prepareTarPromises(unique(res), timeStamp));
   }).then(function(compressedTars) {
-    console.log(compressedTars);
     var rows = [];
-    console.log('Previous===>', previous);
     for (var tar of compressedTars) {
       var row = [];
       var meta = tar.meta || {};
@@ -216,4 +211,6 @@ function dumpDatabase() {
   );
 
 }
-dumpDatabase();
+module.exports = {
+  dumpDatabase: dumpDatabase
+};
