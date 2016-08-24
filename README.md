@@ -4,4 +4,4 @@ To use rename the config.json.example to config.json and set your own configurat
 
 Create a database called remote_sync and import remote_sync.sql
 
-Run ```node node mysql-backup.js ``` to generate the sync dumps and ```node server.js``` to run the meta data endpoint.
+Run  ```node server.js``` to generate the sync dumps and serve the meta data endpoint.
