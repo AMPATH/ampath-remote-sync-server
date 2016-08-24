@@ -111,7 +111,7 @@ function compressPath(path, timeStamp) {
       if (empty) {
         extfs.removeSync(temp);
         resolve({
-          path: 'no data',
+          path: null,
           meta: meta
         });
       } else {
