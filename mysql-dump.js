@@ -100,7 +100,7 @@ function prepareTarPromises(paths, timeStamp) {
 function compressPath(path, timeStamp) {
   var name = path.match(/([^\/]*)\/*$/)[1];
   var compressed = config.dumpBase +
-    timeStamp + '.tar.gz';
+    timeStamp.replace(/\s+/g, '') + '.tar.gz';
   var meta = {
     timeStamp: timeStamp,
     dumpUuid: uuid.v4()
