@@ -11,6 +11,7 @@ internals.getDumps = function(request, reply) {
   var connection = db.getConnection();
   var query = 'SELECT id,path,dump_time,previous_dump_time,dump_uuid FROM generated_zips where path IS NOT NULL ORDER BY id DESC';
   var value = '';
+  console.log('Last UUID===>',request.query.lastUuid);
   if (request.query.fromDate) {
     value = request.query.fromDate;
     query = 'SELECT id,path,dump_time,previous_dump_time,dump_uuid FROM generated_zips where dump_time > ? and path IS NOT NULL ORDER BY id DESC';
@@ -19,7 +20,8 @@ internals.getDumps = function(request, reply) {
     value = request.query.lastUuid;
     query = 'SELECT id,path,dump_time,previous_dump_time,dump_uuid FROM `generated_zips` WHERE id > (SELECT MAX(id) FROM generated_zips WHERE dump_uuid = ?) and path IS NOT NULL ORDER BY id DESC';
   }
-  connection.execute(query, [value,'no data'], function(err, rows) {
+  console.log()
+  connection.execute(query, [value], function(err, rows) {
     if (err) {
       console.log(err);
       reply('Error querying db');
