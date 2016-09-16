@@ -22,7 +22,7 @@ function dumpTable(server, table, options) {
     return replacements[all] || all;
   });
   var cmd = sprintf(
-    "mysqldump -h %s --port=%s -u %s --password=\"%s\" \"%s\"  \"%s\" --compact --replace --no-create-info --where=\"%s\"",
+    "mysqldump -h %s --port=%s -u %s --password=\"%s\" \"%s\"  \"%s\" --compact --replace --default-character-set=utf8 --no-create-info --where=\"%s\"",
     server.host,
     server.port,
     server.username,
