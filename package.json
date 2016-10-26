@@ -26,6 +26,7 @@
     "nanotimer": "^0.3.14",
     "node-exec-promise": "^0.1.1",
     "node-uuid": "^1.4.7",
+    "recursive-readdir": "^2.1.0",
     "shelljs": "^0.7.3",
     "sprintf": "^0.1.5",
     "string-to-stream": "^1.1.0",

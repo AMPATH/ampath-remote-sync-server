@@ -22,7 +22,7 @@ function dumpTable(server, table, options) {
     return replacements[all] || all;
   });
   var cmd = sprintf(
-    "mysqldump -h %s --port=%s  \"%s\"  \"%s\" --compact --replace --default-character-set=utf8 --no-create-info --where=\"%s\"",
+    "mysqldump -h %s --port=%s  \"%s\"  \"%s\" --compact --replace --complete-insert --default-character-set=utf8 --no-create-info --where=\"%s\"",
     server.host,
     server.port,
     server.database,
@@ -141,6 +141,7 @@ function insert(table, columns, values) {
   return new Promise(function(resolve, reject) {
     var connection = db.getConnection();
     connection.query(sql, values, function(err, rows) {
+      console.log(rows);
       if (err) {
         console.log('Error inserting dumps');
         reject(err);
